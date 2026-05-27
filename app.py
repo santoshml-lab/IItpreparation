@@ -63,3 +63,46 @@ Question:
         "status": "success",
         "solution": res.choices[0].message.content
     }
+    from pydantic import BaseModel
+
+class PracticeRequest(BaseModel):
+    subject: str
+    question: str
+
+@app.post("/practice")
+def practice(data: PracticeRequest):
+
+    prompt = f"""
+You are IIT level Physics/Math/Chemistry teacher.
+
+TASK:
+1. Solve given problem step-by-step
+2. Explain concept clearly
+3. Then generate ONE similar but slightly tougher question
+
+FORMAT STRICT:
+
+# 📘 Solution
+(complete step-by-step solution)
+
+# 🧠 Concept Used
+(explain concept briefly)
+
+# 🔥 Next Practice Question
+(generate similar IIT-level question ONLY)
+
+Subject: {data.subject}
+Question: {data.question}
+"""
+
+    res = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "system", "content": prompt}],
+        max_tokens=2000
+    )
+
+    return {
+        "status": "success",
+        "result": res.choices[0].message.content
+    }
+    
