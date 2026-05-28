@@ -1,5 +1,4 @@
-
-
+ 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -35,31 +34,38 @@ class EvaluateRequest(BaseModel):
     student_answer: str
 
 
-# ================= SOLVE ENDPOINT =================
+# ================= GLOBAL PROMPT RULES =================
+
+BASE_RULES = """
+You are an IIT-level expert teacher.
+
+STRICT RULES:
+- Use ONLY given values from question
+- Do NOT assume missing values
+- No extra theory outside relevance
+- Keep answer clean and structured
+- No special symbols like μ, √, ² (use mu, sqrt, ^2)
+- Step-by-step reasoning required
+- IIT coaching style explanation
+"""
+
+# ================= SOLVE =================
 
 @app.post("/solve")
 def solve(data: SolveRequest):
 
     prompt = f"""
-You are an IIT-level expert teacher.
+{BASE_RULES}
 
 MISSION:
-Solve problems with deep understanding.
-
-RULES:
-- First explain concept
-- Then give approach
-- Then step-by-step solution
-- Then final answer
-- No skipping steps
-- Very logical IIT coaching style
+Solve the problem in structured IIT format.
 
 FORMAT:
 
-# 📘 Concept
-# 🧠 Approach
-# 🔢 Step-by-step Solution
-# 🎯 Final Answer
+# Concept
+# Approach
+# Step-by-step Solution
+# Final Answer
 
 Subject: {data.subject}
 
@@ -69,41 +75,34 @@ Question:
 
     res = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": prompt}
-        ],
+        messages=[{"role": "system", "content": prompt}],
         max_tokens=2000
     )
 
     return {
         "status": "success",
-        "solution": res.choices[0].message.content
+        "solution": res.choices[0].message.content.strip()
     }
 
 
-# ================= PRACTICE ENDPOINT =================
+# ================= PRACTICE =================
 
 @app.post("/practice")
 def practice(data: PracticeRequest):
 
     prompt = f"""
-You are IIT level Physics/Math/Chemistry teacher.
+{BASE_RULES}
 
 TASK:
-1. Solve given problem step-by-step
-2. Explain concept clearly
-3. Then generate ONE similar but slightly tougher question
+1. Solve the problem step-by-step
+2. Explain concept simply
+3. Generate ONE similar tougher IIT question
 
-FORMAT STRICT:
+FORMAT:
 
-# 📘 Solution
-(complete step-by-step solution)
-
-# 🧠 Concept Used
-(explain concept briefly)
-
-# 🔥 Next Practice Question
-(generate similar IIT-level question ONLY)
+# Solution
+# Concept Used
+# Next Practice Question
 
 Subject: {data.subject}
 
@@ -113,54 +112,37 @@ Question:
 
     res = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": prompt}
-        ],
+        messages=[{"role": "system", "content": prompt}],
         max_tokens=2000
     )
 
     return {
         "status": "success",
-        "result": res.choices[0].message.content
+        "result": res.choices[0].message.content.strip()
     }
 
 
-# ================= EVALUATE ENDPOINT =================
+# ================= EVALUATE =================
 
 @app.post("/evaluate")
 def evaluate(data: EvaluateRequest):
 
     prompt = f"""
-You are an IIT-level AI teacher.
+{BASE_RULES}
 
 TASK:
-Evaluate the student's answer deeply.
-
-RULES:
-- Check correctness
-- Find conceptual mistakes
-- Explain errors clearly
-- Give improvement tips
-- Give score out of 10
-- Motivate student slightly
-- IIT coaching style explanation
+Evaluate student's answer like IIT mentor.
 
 FORMAT:
 
-# 🧠 Answer Evaluation
+# Answer Evaluation
+# Correct Parts
+# Mistakes
+# Correct Concept
+# Score (out of 10)
+# Improvement Tip
 
-# ✅ Correct Parts
-
-# ❌ Mistakes
-
-# 📘 Correct Concept
-
-# 🎯 Final Score
-
-# 🚀 Improvement Tip
-
-Subject:
-{data.subject}
+Subject: {data.subject}
 
 Question:
 {data.question}
@@ -171,13 +153,11 @@ Student Answer:
 
     res = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": prompt}
-        ],
+        messages=[{"role": "system", "content": prompt}],
         max_tokens=2000
     )
 
     return {
         "status": "success",
-        "result": res.choices[0].message.content
-    }   
+        "result": res.choices[0].message.content.strip()
+    }
