@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+
+ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from groq import Groq
@@ -15,9 +16,10 @@ app.add_middleware(
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# ================= INPUT =================
+# ================= INPUT MODELS =================
+
 class SolveRequest(BaseModel):
-    subject: str   # physics / math / chemistry
+    subject: str
     question: str
 
 
@@ -26,7 +28,14 @@ class PracticeRequest(BaseModel):
     question: str
 
 
-# ================= CORE SOLVER =================
+class EvaluateRequest(BaseModel):
+    subject: str
+    question: str
+    student_answer: str
+
+
+# ================= SOLVE ENDPOINT =================
+
 @app.post("/solve")
 def solve(data: SolveRequest):
 
@@ -59,7 +68,9 @@ Question:
 
     res = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[{"role": "system", "content": prompt}],
+        messages=[
+            {"role": "system", "content": prompt}
+        ],
         max_tokens=2000
     )
 
@@ -69,7 +80,8 @@ Question:
     }
 
 
-# ================= PRACTICE ENGINE =================
+# ================= PRACTICE ENDPOINT =================
+
 @app.post("/practice")
 def practice(data: PracticeRequest):
 
@@ -79,13 +91,18 @@ You are IIT level Physics/Math/Chemistry teacher.
 TASK:
 1. Solve given problem step-by-step
 2. Explain concept clearly
-3. Generate ONE similar but slightly tougher question
+3. Then generate ONE similar but slightly tougher question
 
 FORMAT STRICT:
 
 # 📘 Solution
+(complete step-by-step solution)
+
 # 🧠 Concept Used
+(explain concept briefly)
+
 # 🔥 Next Practice Question
+(generate similar IIT-level question ONLY)
 
 Subject: {data.subject}
 
@@ -95,7 +112,9 @@ Question:
 
     res = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[{"role": "system", "content": prompt}],
+        messages=[
+            {"role": "system", "content": prompt}
+        ],
         max_tokens=2000
     )
 
@@ -103,4 +122,61 @@ Question:
         "status": "success",
         "result": res.choices[0].message.content
     }
-    
+
+
+# ================= EVALUATE ENDPOINT =================
+
+@app.post("/evaluate")
+def evaluate(data: EvaluateRequest):
+
+    prompt = f"""
+You are an IIT-level AI teacher.
+
+TASK:
+Evaluate the student's answer deeply.
+
+RULES:
+- Check correctness
+- Find conceptual mistakes
+- Explain errors clearly
+- Give improvement tips
+- Give score out of 10
+- Motivate student slightly
+- IIT coaching style explanation
+
+FORMAT:
+
+# 🧠 Answer Evaluation
+
+# ✅ Correct Parts
+
+# ❌ Mistakes
+
+# 📘 Correct Concept
+
+# 🎯 Final Score
+
+# 🚀 Improvement Tip
+
+Subject:
+{data.subject}
+
+Question:
+{data.question}
+
+Student Answer:
+{data.student_answer}
+"""
+
+    res = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "system", "content": prompt}
+        ],
+        max_tokens=2000
+    )
+
+    return {
+        "status": "success",
+        "result": res.choices[0].message.content
+    }   
