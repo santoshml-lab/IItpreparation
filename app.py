@@ -218,5 +218,64 @@ Question:
         "status": "success",
         "result": res.choices[0].message.content.strip()
     }
+    class SummaryRequest(BaseModel):
+    subject: str
+    question: str
+    student_answer: str
+
+
+@app.post("/summary")
+def summary(data: SummaryRequest):
+
+    prompt = f"""
+{BASE_RULES}
+
+TASK:
+Generate a final learning summary for the student after solving/evaluating a problem.
+
+RULES:
+- Keep it short and powerful
+- Focus on learning improvement
+- Give clear next step
+- Identify weak concept if any
+- Act like IIT mentor closing session
+
+FORMAT STRICT:
+
+# 📌 Summary
+
+## 🧠 Concept Used
+(what concept was required)
+
+## 📊 Performance Review
+(strengths + weaknesses)
+
+## ⚠️ Common Mistake (if any)
+(highlight error pattern)
+
+## 🚀 Next Step
+(what student should do next)
+
+Subject: {data.subject}
+
+Question:
+{data.question}
+
+Student Answer:
+{data.student_answer}
+"""
+
+    res = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "system", "content": prompt}
+        ],
+        max_tokens=2000
+    )
+
+    return {
+        "status": "success",
+        "result": res.choices[0].message.content.strip()
+    }
 
 
