@@ -160,3 +160,63 @@ Student Answer:
         "status": "success",
         "result": res.choices[0].message.content.strip()
     }
+    # ================= HINT MODE =================
+
+class HintRequest(BaseModel):
+    subject: str
+    question: str
+
+
+@app.post("/hint")
+def hint(data: HintRequest):
+
+    prompt = f"""
+{BASE_RULES}
+
+TASK:
+Help the student think like an IIT aspirant.
+
+RULES:
+- Do NOT reveal full solution immediately
+- Give progressive hints
+- Build thinking ability
+- Keep hints logical and short
+- Final solution should come at end
+
+FORMAT:
+
+# Hint 1
+(give first thinking direction)
+
+# Hint 2
+(give deeper guidance)
+
+# Hint 3
+(almost solving approach)
+
+# Final Solution
+(step-by-step concise solution)
+
+Subject: {data.subject}
+
+Question:
+{data.question}
+"""
+
+    res = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "system",
+                "content": prompt
+            }
+        ],
+        max_tokens=2000
+    )
+
+    return {
+        "status": "success",
+        "result": res.choices[0].message.content.strip()
+    }
+
+
