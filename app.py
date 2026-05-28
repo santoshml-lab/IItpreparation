@@ -15,7 +15,7 @@ app.add_middleware(
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# ================= INPUT MODELS =================
+# ================= MODELS =================
 
 class SolveRequest(BaseModel):
     subject: str
@@ -33,21 +33,22 @@ class EvaluateRequest(BaseModel):
     student_answer: str
 
 
-# ================= GLOBAL PROMPT RULES =================
+class SummaryRequest(BaseModel):
+    subject: str
+    topic: str
+
+
+# ================= BASE RULES =================
 
 BASE_RULES = """
 You are an IIT-level expert teacher.
 
 STRICT RULES:
-- Use ONLY given values from question
-- Do NOT assume missing values
-- No extra theory outside relevance
-- Keep answer clean and structured
-- Use plain text only (no symbols like μ, √, ²)
-- Use mu, sqrt, ^2 instead
+- Use only given values
+- No assumptions
 - Step-by-step reasoning required
-- IIT coaching style explanation
-- Output must be COPY-FRIENDLY (no markdown widgets)
+- Clean structured IIT coaching style
+- Keep answers exam focused
 """
 
 
@@ -60,13 +61,13 @@ def solve(data: SolveRequest):
 {BASE_RULES}
 
 MISSION:
-Solve the problem in structured IIT format.
+Solve step-by-step.
 
 FORMAT:
-Concept
-Approach
-Step-by-step Solution
-Final Answer
+# Concept
+# Approach
+# Step-by-step Solution
+# Final Answer
 
 Subject: {data.subject}
 
@@ -97,12 +98,12 @@ def practice(data: PracticeRequest):
 TASK:
 1. Solve step-by-step
 2. Explain concept simply
-3. Generate ONE similar tougher IIT question
+3. Give ONE tougher similar question
 
 FORMAT:
-Solution
-Concept Used
-Next Practice Question
+# Solution
+# Concept Used
+# Next Practice Question
 
 Subject: {data.subject}
 
@@ -131,15 +132,15 @@ def evaluate(data: EvaluateRequest):
 {BASE_RULES}
 
 TASK:
-Evaluate student's answer like IIT mentor.
+Evaluate student's answer.
 
 FORMAT:
-Answer Evaluation
-Correct Parts
-Mistakes
-Correct Concept
-Score out of 10
-Improvement Tip
+# Answer Evaluation
+# Correct Parts
+# Mistakes
+# Correct Concept
+# Score (out of 10)
+# Improvement Tip
 
 Subject: {data.subject}
 
@@ -160,42 +161,24 @@ Student Answer:
         "status": "success",
         "result": res.choices[0].message.content.strip()
     }
-    # ================= HINT MODE =================
 
-class HintRequest(BaseModel):
-    subject: str
-    question: str
 
+# ================= HINT =================
 
 @app.post("/hint")
-def hint(data: HintRequest):
+def hint(data: SolveRequest):
 
     prompt = f"""
-{BASE_RULES}
+You are an IIT mentor.
 
 TASK:
-Help the student think like an IIT aspirant.
-
-RULES:
-- Do NOT reveal full solution immediately
-- Give progressive hints
-- Build thinking ability
-- Keep hints logical and short
-- Final solution should come at end
+Give guided hints only (NO full solution).
 
 FORMAT:
-
 # Hint 1
-(give first thinking direction)
-
 # Hint 2
-(give deeper guidance)
-
 # Hint 3
-(almost solving approach)
-
-# Final Solution
-(step-by-step concise solution)
+# Final Direction
 
 Subject: {data.subject}
 
@@ -205,72 +188,43 @@ Question:
 
     res = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {
-                "role": "system",
-                "content": prompt
-            }
-        ],
-        max_tokens=2000
+        messages=[{"role": "system", "content": prompt}],
+        max_tokens=1200
     )
 
     return {
         "status": "success",
         "result": res.choices[0].message.content.strip()
     }
-    class SummaryRequest(BaseModel):
-    subject: str
-    question: str
-    student_answer: str
 
+
+# ================= SUMMARY =================
 
 @app.post("/summary")
 def summary(data: SummaryRequest):
 
     prompt = f"""
-{BASE_RULES}
+You are an IIT revision coach.
 
 TASK:
-Generate a final learning summary for the student after solving/evaluating a problem.
+Create short exam-ready revision notes.
 
-RULES:
-- Keep it short and powerful
-- Focus on learning improvement
-- Give clear next step
-- Identify weak concept if any
-- Act like IIT mentor closing session
-
-FORMAT STRICT:
-
-# 📌 Summary
-
-## 🧠 Concept Used
-(what concept was required)
-
-## 📊 Performance Review
-(strengths + weaknesses)
-
-## ⚠️ Common Mistake (if any)
-(highlight error pattern)
-
-## 🚀 Next Step
-(what student should do next)
+FORMAT:
+# Summary Notes
+# Key Points
+# Important Formulas / Concepts
+# Exam Tips
 
 Subject: {data.subject}
 
-Question:
-{data.question}
-
-Student Answer:
-{data.student_answer}
+Topic:
+{data.topic}
 """
 
     res = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "system", "content": prompt}
-        ],
-        max_tokens=2000
+        messages=[{"role": "system", "content": prompt}],
+        max_tokens=1200
     )
 
     return {
