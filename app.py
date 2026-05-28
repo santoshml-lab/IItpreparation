@@ -1,4 +1,3 @@
- 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -44,10 +43,13 @@ STRICT RULES:
 - Do NOT assume missing values
 - No extra theory outside relevance
 - Keep answer clean and structured
-- No special symbols like μ, √, ² (use mu, sqrt, ^2)
+- Use plain text only (no symbols like μ, √, ²)
+- Use mu, sqrt, ^2 instead
 - Step-by-step reasoning required
 - IIT coaching style explanation
+- Output must be COPY-FRIENDLY (no markdown widgets)
 """
+
 
 # ================= SOLVE =================
 
@@ -61,11 +63,10 @@ MISSION:
 Solve the problem in structured IIT format.
 
 FORMAT:
-
-# Concept
-# Approach
-# Step-by-step Solution
-# Final Answer
+Concept
+Approach
+Step-by-step Solution
+Final Answer
 
 Subject: {data.subject}
 
@@ -94,15 +95,14 @@ def practice(data: PracticeRequest):
 {BASE_RULES}
 
 TASK:
-1. Solve the problem step-by-step
+1. Solve step-by-step
 2. Explain concept simply
 3. Generate ONE similar tougher IIT question
 
 FORMAT:
-
-# Solution
-# Concept Used
-# Next Practice Question
+Solution
+Concept Used
+Next Practice Question
 
 Subject: {data.subject}
 
@@ -134,13 +134,12 @@ TASK:
 Evaluate student's answer like IIT mentor.
 
 FORMAT:
-
-# Answer Evaluation
-# Correct Parts
-# Mistakes
-# Correct Concept
-# Score (out of 10)
-# Improvement Tip
+Answer Evaluation
+Correct Parts
+Mistakes
+Correct Concept
+Score out of 10
+Improvement Tip
 
 Subject: {data.subject}
 
