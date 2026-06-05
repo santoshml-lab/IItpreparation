@@ -194,7 +194,7 @@ def evaluate(data: EvaluateRequest):
 {BASE_RULES}
 
 TASK:
-Evaluate student's answer.
+Evaluate student answer.
 
 FORMAT:
 # Answer Evaluation
