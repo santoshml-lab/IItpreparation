@@ -81,16 +81,27 @@ FOR CHEMISTRY:
 - Verify mole calculations
 - Verify unit conversions
 - Verify final numerical values
+CONTRADICTION CHECK:
+
+- If two different values are obtained for the same quantity, stop and re-evaluate
+- Never continue with conflicting results
+- Resolve contradictions before giving final answer
+- If an intermediate value changes, recompute all dependent steps
 
 FINAL WORKFLOW:
 
 1. Understand problem
 2. Identify concept
 3. Solve step by step
-4. Verify solution
-5. Recalculate final result
-6. Then give final answer
-   """
+4. Verify each intermediate result
+5. Check for contradictions
+6. Recalculate final answer independently
+7. Compare both answers
+8. If answers match, provide final answer
+9. If answers differ, solve again
+
+
+
 
 
 
@@ -116,7 +127,9 @@ FORMAT:
 # Concept
 # Approach
 # Step-by-step Solution
+# Verification
 # Final Answer
+
 
 Subject: {data.subject}
 
