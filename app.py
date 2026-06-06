@@ -297,8 +297,9 @@ Topic:
    # ================= TOPIC LEARN =================
 
 class TopicLearnRequest(BaseModel):
-subject: str
-topic: str
+    subject: str
+    topic: str
+
 
 @app.post("/topic-learn")
 def topic_learn(data: TopicLearnRequest):
@@ -357,8 +358,10 @@ return {
 # ================= MCQ CHECK =================
 
 class MCQCheckRequest(BaseModel):
-selected_answer: str
-correct_answer: str
+    selected_answer: str
+    correct_answer: str
+
+
 
 @app.post("/check-mcq")
 def check_mcq(data: MCQCheckRequest):
