@@ -294,7 +294,7 @@ Topic:
         "status": "success",
         "result": res.choices[0].message.content.strip()
     }
-    ================= TOPIC LEARN =================
+   # ================= TOPIC LEARN =================
 
 class TopicLearnRequest(BaseModel):
 subject: str
@@ -354,7 +354,7 @@ return {
     "result": res.choices[0].message.content.strip()
 }
 
-================= MCQ CHECK =================
+# ================= MCQ CHECK =================
 
 class MCQCheckRequest(BaseModel):
 selected_answer: str
