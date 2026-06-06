@@ -294,31 +294,37 @@ Topic:
         "status": "success",
         "result": res.choices[0].message.content.strip()
     }
-   # ================= TOPIC LEARN =================
+    # ================= TOPIC LEARN MODELS =================
 
 class TopicLearnRequest(BaseModel):
     subject: str
     topic: str
 
 
+class MCQCheckRequest(BaseModel):
+    selected_answer: str
+    correct_answer: str
+
+
+# ================= TOPIC LEARN =================
+
 @app.post("/topic-learn")
 def topic_learn(data: TopicLearnRequest):
 
-prompt = f"""
-
+    prompt = f"""
 You are an IIT-level teacher.
 
 Teach the topic deeply.
 
 FORMAT:
 
-Concept
+# Concept
 
-Important Formulae
+# Important Formulae
 
-Common Mistakes
+# Common Mistakes
 
-MCQ
+# MCQ
 
 Question:
 ...
@@ -339,46 +345,41 @@ Topic:
 {data.topic}
 """
 
-res = client.chat.completions.create(
-    model="llama-3.1-8b-instant",
-    messages=[
-        {
-            "role": "system",
-            "content": prompt
-        }
-    ],
-    max_tokens=2000
-)
+    res = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "system",
+                "content": prompt
+            }
+        ],
+        max_tokens=2000
+    )
 
-return {
-    "status": "success",
-    "result": res.choices[0].message.content.strip()
-}
+    return {
+        "status": "success",
+        "result": res.choices[0].message.content.strip()
+    }
+
 
 # ================= MCQ CHECK =================
-
-class MCQCheckRequest(BaseModel):
-    selected_answer: str
-    correct_answer: str
-
-
 
 @app.post("/check-mcq")
 def check_mcq(data: MCQCheckRequest):
 
-correct = (
-    data.selected_answer.strip().upper()
-    ==
-    data.correct_answer.strip().upper()
-)
+    correct = (
+        data.selected_answer.strip().upper()
+        ==
+        data.correct_answer.strip().upper()
+    )
 
-return {
-    "correct": correct,
-    "message":
-        "Correct ✅"
-        if correct
-        else "Incorrect ❌"
-}
+    return {
+        "correct": correct,
+        "message": "Correct ✅" if correct else "Incorrect ❌"
+    }
+   
+
+
     
     
 
