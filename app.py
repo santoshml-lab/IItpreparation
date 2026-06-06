@@ -301,6 +301,7 @@ class TopicLearnRequest(BaseModel):
 subject: str
 topic: str
 
+
 class MCQCheckRequest(BaseModel):
 selected_answer: str
 correct_answer: str
