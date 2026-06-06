@@ -295,7 +295,7 @@ Topic:
         "result": res.choices[0].message.content.strip()
     }
     
-================= LEARNING MODELS =================
+
 
 class TopicLearnRequest(BaseModel):
 subject: str
@@ -305,7 +305,7 @@ class MCQCheckRequest(BaseModel):
 selected_answer: str
 correct_answer: str
 
-================= TOPIC LEARN =================
+
 
 @app.post("/topic-learn")
 def topic_learn(data: TopicLearnRequest):
@@ -361,7 +361,7 @@ return {
     "result": res.choices[0].message.content.strip()
 }
 
-================= CHECK MCQ =================
+
 
 @app.post("/check-mcq")
 def check_mcq(data: MCQCheckRequest):
