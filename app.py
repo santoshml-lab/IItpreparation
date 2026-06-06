@@ -295,88 +295,32 @@ Topic:
         "result": res.choices[0].message.content.strip()
     }
     
-
-
-class TopicLearnRequest(BaseModel):
-subject: str
-topic: str
-
-class MCQCheckRequest(BaseModel):
-selected_answer: str
-correct_answer: str
+    
 
 
 
-@app.post("/topic-learn")
-def topic_learn(data: TopicLearnRequest):
-
-prompt = f"""
-
-You are an IIT-level teacher.
-
-Teach topic deeply.
-
-FORMAT:
-
-Concept
-
-Important Formulae
-
-Common Mistakes
-
-MCQ
-
-Question:
-...
-
-Options:
-A)
-B)
-C)
-D)
-
-Correct Answer:
-...
-
-Subject:
-{data.subject}
-
-Topic:
-{data.topic}
-"""
-
-res = client.chat.completions.create(
-    model="llama-3.1-8b-instant",
-    messages=[
-        {
-            "role": "system",
-            "content": prompt
-        }
-    ],
-    max_tokens=2000
-)
-
-return {
-    "status": "success",
-    "result": res.choices[0].message.content.strip()
-}
 
 
 
-@app.post("/check-mcq")
-def check_mcq(data: MCQCheckRequest):
+    
+    
+    
+    
 
-correct = (
-    data.selected_answer.strip().upper()
-    ==
-    data.correct_answer.strip().upper()
-)
 
-return {
-    "correct": correct,
-    "message":
-        "Correct ✅"
-        if correct
-        else "Incorrect ❌"
-}
+
+
+
+    
+    
+    
+
+
+    
+
+
+    
+
+
+
 
