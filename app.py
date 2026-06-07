@@ -324,7 +324,7 @@ FORMAT:
 
 # Common Mistakes
 
-# 3 MCQ
+# 1 MCQ
 
 Question:
 ...
