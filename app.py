@@ -324,7 +324,16 @@ FORMAT:
 
 # Common Mistakes
 
-# Theory MCQ
+MCQ RULES:
+
+- Generate ONLY conceptual theory MCQs.
+- Do NOT ask derivative calculations.
+- Do NOT ask integration calculations.
+- Do NOT ask numerical problems.
+- Do NOT ask formula evaluation.
+- Do NOT ask multi-step mathematics.
+- Questions should test concepts only.
+- Answer should be identifiable from theory.
 
 Question:
 ...
